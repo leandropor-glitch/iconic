@@ -1,0 +1,163 @@
+{
+  "_como_funciona": "Cada aparelho vai para o primeiro cômodo cuja palavra aparece no nome (sem acento, sem maiúscula). Palavras com até 3 letras só valem como palavra inteira. 'fixos' força um aparelho num cômodo: chave 'Nome' ou 'Nome|TIPO'. 'ocultar' esconde tipos. 'cor' é a cor do cômodo na tela de Cenas.",
+  "comodos": [
+    {
+      "nome": "Quarto do Felipe",
+      "palavras": [
+        "felipe",
+        "mesafel"
+      ],
+      "cor": "#b07cff"
+    },
+    {
+      "nome": "Suíte",
+      "palavras": [
+        "suite",
+        "casal",
+        "cama",
+        "master",
+        "sm",
+        "cab leandro",
+        "cab joana",
+        "boa noite"
+      ],
+      "cor": "#ff5fa2"
+    },
+    {
+      "nome": "Closet",
+      "palavras": [
+        "closet",
+        "joana_clos",
+        "armario"
+      ],
+      "cor": "#b8f36b"
+    },
+    {
+      "nome": "Cozinha",
+      "palavras": [
+        "cozinha",
+        "bancada",
+        "fita pia",
+        "cafe",
+        "nespresso",
+        "adega"
+      ],
+      "cor": "#ff9f43"
+    },
+    {
+      "nome": "Banheiros",
+      "palavras": [
+        "banheiro",
+        "lavabo",
+        "toalheiro",
+        "banho"
+      ],
+      "cor": "#22d3ee"
+    },
+    {
+      "nome": "Varanda",
+      "palavras": [
+        "varanda",
+        "corda"
+      ],
+      "cor": "#3ddc84"
+    },
+    {
+      "nome": "Área de serviço",
+      "palavras": [
+        "area servico",
+        "area"
+      ],
+      "cor": "#ffd43b"
+    },
+    {
+      "nome": "Entrada",
+      "palavras": [
+        "entrada",
+        "porta",
+        "corredor",
+        "way 210",
+        "ring"
+      ],
+      "cor": "#5eead4"
+    },
+    {
+      "nome": "Sala",
+      "palavras": [
+        "sala",
+        "lustre",
+        "estante",
+        "painel",
+        "muxarabi",
+        "indireta",
+        "sanca",
+        "tela",
+        "led",
+        "luminaria",
+        "abajur",
+        "mesa",
+        "net",
+        "globo",
+        "apple tv",
+        "playstation",
+        "musica",
+        "persiana",
+        "cort",
+        "luz alta",
+        "luz baixa",
+        "vol z1",
+        "pw z1",
+        "pw z2",
+        "pw net",
+        "mudo",
+        "3wbm",
+        "ch"
+      ],
+      "cor": "#5b8cff"
+    }
+  ],
+  "fixos": {
+    "Mudo|CENA": "Sala",
+    "MudoSM|CENA": "Suíte",
+    "Vol SM|CENA": "Suíte"
+  },
+  "_controles": "Controle remoto: cada botão do app dispara uma CENA da Tuya/Smart Life (uma cena por comando IR/RF). Formato: aparelho → { botão: nome exato da cena }. Os botões abaixo são exemplos com cenas que já existem; ajuste para o que cada cena faz de verdade.",
+  "controles": {
+    "TV da Sala": {
+      "Liga/Desliga": "TV Sala",
+      "Mudo": "Mudo",
+      "Volume": "Vol Z1",
+      "Globo": "Globo",
+      "Apple TV": "Apple TV",
+      "PlayStation": "PlayStation",
+      "Net": "PW Net",
+      "Música": "Música"
+    },
+    "Net Sala": {
+      "Liga/Desliga": "PW Net",
+      "Globo": "Globo",
+      "Canais": "CH"
+    },
+    "TV da Suíte": {
+      "Liga/Desliga": "TV Suíte",
+      "Mudo": "MudoSM",
+      "Volume": "Vol SM"
+    },
+    "Ar da Sala": {
+      "Ligar automático": "ONAutACSala",
+      "Desligar automático": "OffautACSala"
+    },
+    "Ar da Suíte": {
+      "Liga/Desliga": "AC Suíte"
+    },
+    "Ar do Felipe": {
+      "Liga/Desliga": "AC Felipe"
+    }
+  },
+  "ocultar": [
+    "CAMERA",
+    "SECURITY_PANEL"
+  ],
+  "semComodo": "Outros",
+  "corSemComodo": "#ff6b6b"
+}

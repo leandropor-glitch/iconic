@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06070a">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="iConic">
+<meta name="application-name" content="iConic">
+<meta name="description" content="Toda a sua casa em uma tela.">
+<title>iConic</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="icone-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
+<style>
+:root{
+  --bg:#06070a; --bg2:#0a0b0e; --card:#111317; --card2:#0d0f13; --line:#1f2228; --line2:#1a1d22; --line3:#2a2e35;
+  --ink:#e9eae6; --mute:#8a8d86; --soft:#c9cbc5; --acc:#d6ff1a; --acc-ink:#06070a; --up:#7fd88a; --dn:#ff8a82;
+  --mono:'Share Tech Mono', ui-monospace, monospace; --sans:'Saira', system-ui, sans-serif;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px); --safe-l:env(safe-area-inset-left,0px); --safe-r:env(safe-area-inset-right,0px);
+  --gap:8px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body{overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button,input,textarea{font-family:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.kick{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--mute);text-transform:uppercase}
+.dot{width:8px;height:8px;border-radius:4px;background:var(--acc);display:inline-block;flex:none}
+.dot[data-on="0"]{background:var(--dn)}
+
+/* ---------- estrutura ---------- */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:calc(var(--safe-t) + 6px) calc(var(--safe-r) + 14px) calc(var(--safe-b) + 10px) calc(var(--safe-l) + 14px)}
+header{flex:none;height:48px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px}
+.marca{display:flex;align-items:center;gap:10px;min-width:0}
+.marca b{font-size:20px;font-weight:600;letter-spacing:.2px}
+.marca .kick{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.abas{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--card)}
+.abas button{height:34px;padding:0 16px;border:0;border-radius:9px;background:transparent;color:var(--mute);font-size:14px;font-weight:500}
+.abas button[aria-selected="true"]{background:#23262d;color:var(--ink)}
+.dir{display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.hora{font-family:var(--mono);font-size:18px;color:var(--soft)}
+.ico{width:38px;height:38px;border-radius:19px;border:1px solid var(--line3);background:var(--card2);display:flex;align-items:center;justify-content:center;padding:0}
+.legenda{flex:none;display:flex;gap:14px;overflow:hidden;height:24px;align-items:center;white-space:nowrap}
+.legenda span{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--mute);text-transform:uppercase}
+.legenda i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.vista{flex:1;min-height:0;display:none;margin-top:6px}
+.vista[data-on="1"]{display:flex;flex-direction:column}
+
+/* ---------- Cenas: grade de parede ---------- */
+#grade{flex:1;min-height:0;display:grid;gap:var(--gap);grid-template-columns:repeat(var(--cols,8),minmax(0,1fr));grid-auto-rows:var(--row,96px);align-content:start;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+#grade::-webkit-scrollbar{display:none}
+.cena{position:relative;border:0;border-radius:14px;background:var(--cor);color:#06070a;text-align:left;padding:10px 12px;display:flex;align-items:flex-start;overflow:hidden;font-size:var(--fs,15px);font-weight:600;line-height:1.15;transition:transform .12s ease, filter .12s ease;touch-action:manipulation}
+.cena span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.cena:active{transform:scale(.96)}
+.cena[data-busy="1"]{animation:espera 1s ease-in-out infinite}
+.cena.brilho{animation:brilho .7s ease-out}
+.cena.falha{animation:falha .45s ease-in-out;box-shadow:inset 0 0 0 3px var(--dn)}
+.cena::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#fff;opacity:0;pointer-events:none}
+.cena.brilho::after{animation:luz .7s ease-out}
+@keyframes espera{50%{filter:brightness(.78)}}
+@keyframes brilho{0%{transform:scale(.95)}40%{transform:scale(1.03);box-shadow:0 0 0 4px #fff, 0 0 32px 6px var(--cor)}100%{transform:scale(1);box-shadow:0 0 0 0 transparent}}
+@keyframes luz{0%{opacity:.55}100%{opacity:0}}
+@keyframes falha{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.vazio{padding:28px 16px;text-align:center;color:var(--mute);font-size:15px}
+
+/* ---------- Cômodos ---------- */
+.rolar{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:12px;padding-bottom:12px}
+.chips{display:flex;gap:8px;overflow-x:auto;flex:none;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--line3);background:var(--card2);font-size:14px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.chip i{width:10px;height:10px;border-radius:3px}
+.chip small{font-family:var(--mono);font-size:11px;opacity:.7}
+.chip[data-on="1"]{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.search{height:44px;border-radius:12px;border:1px solid var(--line3);background:var(--card);padding:0 14px;font-size:15px;outline:none;width:100%;-webkit-user-select:text;user-select:text}
+.search:focus{border-color:var(--acc)}
+.comodos{columns:2 420px;column-gap:12px}
+.room{break-inside:avoid;margin-bottom:12px}
+.room h2{margin:4px 0 8px;font-size:17px;font-weight:500;display:flex;align-items:center;gap:8px}
+.room h2 i{width:12px;height:12px;border-radius:4px}
+.room h2 span{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--mute);letter-spacing:1px}
+.devs{border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.dev{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;min-height:56px;padding:8px 10px 8px 16px;border-bottom:1px solid var(--line2);gap:8px 10px}
+.dev:last-child{border-bottom:0}
+.dev .nm{min-width:0;flex:1 1 140px}
+.dev .nm b{font-weight:500;display:block;overflow-wrap:anywhere;font-size:16px}
+.dev small{display:block;font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:1px;text-transform:uppercase}
+.dev small.ok{color:var(--up)} .dev small.err{color:var(--dn)}
+.dev .acts{display:flex;gap:6px}
+.dev .acts button{height:38px;min-width:44px;padding:0 14px;border-radius:19px;border:1px solid var(--line3);background:var(--card2);font-size:13px}
+.dev .acts button.pri{border-color:var(--acc);color:var(--acc)}
+.dev .acts button:disabled{opacity:.45}
+
+/* ---------- Controles ---------- */
+.controles{flex:1;min-height:0;display:grid;grid-template-columns:minmax(180px,260px) 1fr;gap:14px}
+.ctlLista{display:flex;flex-direction:column;gap:6px;overflow:auto}
+.ctlLista button{min-height:52px;border-radius:14px;border:1px solid var(--line);background:var(--card);text-align:left;padding:8px 14px;font-size:15px}
+.ctlLista button small{display:block;font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:1px}
+.ctlLista button[aria-selected="true"]{border-color:var(--acc);color:var(--acc)}
+.remoto{border-radius:20px;background:var(--card);border:1px solid var(--line);padding:18px;overflow:auto}
+.remoto h2{margin:0 0 4px;font-weight:500}
+.remoto p{margin:0 0 14px;color:var(--mute);font-size:13px}
+.teclas{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.teclas .cena{min-height:84px}
+.teclas .cena small{position:absolute;left:12px;bottom:8px;font-family:var(--mono);font-size:10px;letter-spacing:.5px;opacity:.7;font-weight:400}
+.teclas .cena:disabled{opacity:.35}
+
+/* ---------- login, ajustes, aviso ---------- */
+#login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:calc(var(--safe-t) + 24px) 22px calc(var(--safe-b) + 24px);overflow:auto}
+.caixa{width:min(400px,100%);display:flex;flex-direction:column;gap:14px}
+.caixa h1{margin:0;font-size:34px;font-weight:600}
+.caixa p{margin:0;color:var(--soft);font-size:15px;line-height:21px}
+.mosaico{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.mosaico i{height:34px;border-radius:8px}
+.campo{display:flex;flex-direction:column;gap:6px}
+.campo label{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--mute)}
+.campo input{height:52px;border-radius:14px;border:1px solid var(--line3);background:var(--card);padding:0 16px;font-size:18px;outline:none;-webkit-user-select:text;user-select:text}
+.campo input:focus{border-color:var(--acc)}
+.btn{height:50px;padding:0 20px;border-radius:25px;border:0;background:var(--acc);color:var(--acc-ink);font-size:16px;font-weight:600}
+.btn:disabled{opacity:.5}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line3);font-weight:500}
+.msg{min-height:20px;font-size:14px;line-height:20px;color:var(--dn)}
+dialog{width:min(680px,calc(100vw - 32px));border-radius:18px;border:1px solid var(--line3);background:var(--card);color:var(--ink);padding:20px}
+dialog::backdrop{background:#06070acc}
+dialog h3{margin:0 0 6px;font-weight:500}
+dialog p{margin:0 0 10px;color:var(--soft);font-size:14px;line-height:20px}
+dialog textarea{width:100%;height:42vh;border-radius:12px;border:1px solid var(--line3);background:var(--bg2);padding:12px;font-family:var(--mono);font-size:12px;line-height:17px;outline:none;resize:vertical;-webkit-user-select:text;user-select:text}
+dialog .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safe-b) + 22px);background:#1b1e24;border:1px solid var(--line3);color:var(--ink);padding:12px 20px;border-radius:14px;font-size:16px;z-index:50;max-width:min(92vw,560px);box-shadow:0 10px 30px #0008;transition:opacity .25s}
+.toast[data-show="0"]{opacity:0;pointer-events:none}
+.toast.ok{border-color:var(--up)} .toast.err{border-color:var(--dn)}
+
+/* ---------- telas menores ---------- */
+@media (max-width:760px){
+  header{grid-template-columns:1fr auto;height:auto;row-gap:8px;padding-top:4px}
+  .abas{grid-column:1 / -1;grid-row:2;justify-content:stretch}
+  .abas button{flex:1;padding:0 8px}
+  .hora{display:none}
+  .controles{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .ctlLista{flex-direction:row;overflow-x:auto}
+  .ctlLista button{flex:none}
+  :root{--gap:6px}
+}
+</style>
+</head>
+<body>
+
+<section id="login" hidden>
+  <form class="caixa" id="fLogin">
+    <div class="mosaico" aria-hidden="true"><i style="background:#ff5fa2"></i><i style="background:#b8f36b"></i><i style="background:#22d3ee"></i><i style="background:#ff9f43"></i></div>
+    <h1>iConic</h1>
+    <p>Toda a sua casa em uma tela. Entre com o mesmo número e senha do app Felyx.</p>
+    <div class="campo"><label for="tel">CELULAR COM DDD</label><input id="tel" type="tel" inputmode="numeric" autocomplete="tel" placeholder="21 99999-9999"></div>
+    <div class="campo"><label for="senha">SENHA</label><input id="senha" type="password" autocomplete="current-password"></div>
+    <div class="msg" id="mLogin" role="alert"></div>
+    <button class="btn" id="bEntrar" type="submit">Entrar</button>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header>
+    <div class="marca"><b>iConic</b><span class="dot" id="dot" data-on="0"></span><span class="kick" id="estado">conectando</span></div>
+    <nav class="abas" role="tablist" aria-label="Seções">
+      <button role="tab" data-v="cenas" aria-selected="true">Cenas</button>
+      <button role="tab" data-v="comodos" aria-selected="false">Cômodos</button>
+      <button role="tab" data-v="controles" aria-selected="false">Controles</button>
+    </nav>
+    <div class="dir">
+      <span class="hora" id="hora"></span>
+      <button class="ico" id="bAtualizar" type="button" aria-label="Atualizar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
+      <button class="ico" id="bAjustes" type="button" aria-label="Ajustes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+  </header>
+
+  <section class="vista" id="vCenas" data-on="1">
+    <div class="legenda" id="legenda"></div>
+    <div id="grade" role="list" aria-label="Cenas"></div>
+  </section>
+
+  <section class="vista" id="vComodos" data-on="0">
+    <div class="rolar">
+      <nav class="chips" id="chips" aria-label="Cômodos"></nav>
+      <input class="search" id="busca" type="search" placeholder="Buscar aparelho" aria-label="Buscar aparelho">
+      <div class="comodos" id="listaComodos"></div>
+    </div>
+  </section>
+
+  <section class="vista" id="vControles" data-on="0">
+    <div class="controles">
+      <div class="ctlLista" id="ctlLista"></div>
+      <div class="remoto" id="remoto"></div>
+    </div>
+  </section>
+</div>
+
+<dialog id="dlg">
+  <h3>Ajustes</h3>
+  <p id="ajConta"></p>
+  <p>Mapa de cômodos e controles (JSON). Cada cena ou aparelho vai para o primeiro cômodo cuja palavra aparece no nome; “fixos” força um item (“Nome” ou “Nome|TIPO”); “controles” liga cada botão do controle remoto a uma cena. Fica salvo neste aparelho.</p>
+  <textarea id="txtMapa" spellcheck="false" aria-label="Mapa em JSON"></textarea>
+  <div class="msg" id="mMapa"></div>
+  <div class="row">
+    <button class="btn" id="bSalvar" type="button">Salvar</button>
+    <button class="btn ghost" id="bPadrao" type="button">Restaurar padrão</button>
+    <button class="btn ghost" id="bSair" type="button">Sair da conta</button>
+    <button class="btn ghost" id="bFechar" type="button">Fechar</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" data-show="0" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const VERSAO = '1.0.0';
+const APP_URL = 'https://vinciautomacao.app.n8n.cloud/webhook/felix/app';
+const CORES = ['#ff5fa2', '#b8f36b', '#3ddc84', '#22d3ee', '#ff9f43', '#5b8cff', '#b07cff', '#ffd43b', '#ff6b6b', '#5eead4'];
+const TIPO = { SWITCH: 'Interruptor', SMARTPLUG: 'Tomada', LIGHT: 'Luz', THERMOSTAT: 'Ar-condicionado', OTHER: 'Aparelho', CENA: 'Cena' };
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+function h(tag, attrs, ...filhos){
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})){
+    if (k === 'on') for (const [ev, fn] of Object.entries(v)) el.addEventListener(ev, fn);
+    else if (k === 'class') el.className = v;
+    else if (k === 'style') el.style.cssText = v;
+    else if (v !== false && v != null) el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const f of filhos.flat()) if (f != null) el.append(f.nodeType ? f : document.createTextNode(f));
+  return el;
+}
+let toastT;
+function toast(t, tipo, ms){ const el = $('#toast'); el.textContent = t; el.className = 'toast ' + (tipo || ''); el.dataset.show = '1'; clearTimeout(toastT); toastT = setTimeout(() => { el.dataset.show = '0'; }, ms || 1800); }
+
+/* ===================== fonte de dados =====================
+   No GitHub Pages: backend do Felyx (n8n), com login.
+   No Mac (node servidor.js site): ponte local, sem login. */
+let LOCAL = false;
+let sessao = store.get('iconic.sessao', null);   // { token, nome }
+let casa = store.get('iconic.casa', null);       // { cenas:[nome], aparelhos:[{nome,tipo,acoes}] }
+
+async function api(acao, dados){
+  const r = await fetch(APP_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao, ...dados }) });
+  if (!r.ok) throw new Error('servidor ' + r.status);
+  return r.json();
+}
+async function detectarLocal(){
+  if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return false;
+  try{ const r = await fetch('api/dispositivos'); if (!r.ok) return false; const j = await r.json(); aplicarLocal(j); return true; }catch(e){ return false; }
+}
+function aplicarLocal(j){
+  const ds = (j.dispositivos || []).filter((d) => !['CAMERA', 'SECURITY_PANEL'].includes(d.tipo));
+  casa = { cenas: ds.filter((d) => d.tipo === 'CENA').map((d) => d.nome), aparelhos: ds.filter((d) => d.tipo !== 'CENA').map((d) => ({ nome: d.nome, tipo: d.tipo, acoes: d.acoes })) };
+}
+async function carregarCasa(forcar){
+  estado(null, forcar ? 'atualizando' : 'conectando');
+  try{
+    if (LOCAL){
+      const r = await fetch('api/dispositivos' + (forcar ? '?atualizar=1' : ''));
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.erro || 'falhou');
+      aplicarLocal(j); estado(true, 'casa online');
+    } else {
+      const j = await api('casa', { token: sessao.token });
+      if (j.erro === 'sessao'){ toast('Sua sessão expirou. Entre de novo.', 'err', 3000); sair(); return; }
+      if (!j.ok) throw new Error(j.mensagem || 'falhou');
+      casa = { cenas: j.cenas || [], aparelhos: (j.aparelhos || []).filter((a) => !['CAMERA', 'SECURITY_PANEL'].includes(a.tipo)) };
+      estado(j.ponte ? j.ponte.online !== false : true, j.ponte && j.ponte.online === false ? 'casa fora do ar' : 'casa online');
+    }
+    store.set('iconic.casa', casa);
+  }catch(e){ estado(false, casa ? 'sem conexão · lista guardada' : 'sem conexão'); }
+  renderTudo();
+}
+// Decisão 1: numa cena, qualquer verbo (ativar, desativar, ligar, desligar…) é ATIVAR. Nunca recusa.
+async function ativarCena(nome){
+  if (LOCAL){
+    const r = await fetch('api/acao', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ nome, tipo: 'CENA', acao: 'ativar' }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.erro || 'falhou');
+    return;
+  }
+  const j = await api('comando', { token: sessao.token, texto: 'ativa a cena ' + nome });
+  if (j.erro === 'sessao'){ sair(); throw new Error('sessão expirada'); }
+  if (!j.ok) throw new Error(j.text || 'a casa não confirmou');
+}
+async function ligarAparelho(a, ligar){
+  if (LOCAL){
+    const r = await fetch('api/acao', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ nome: a.nome, tipo: a.tipo, acao: ligar ? 'ligar' : 'desligar' }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.erro || 'falhou');
+    return;
+  }
+  const j = await api('comando', { token: sessao.token, texto: (ligar ? 'liga o ' : 'desliga o ') + a.nome });
+  if (j.erro === 'sessao'){ sair(); throw new Error('sessão expirada'); }
+  if (!j.ok) throw new Error(j.text || 'a casa não confirmou');
+}
+function estado(on, txt){ if (on != null) $('#dot').dataset.on = on ? '1' : '0'; $('#estado').textContent = txt; }
+
+/* ===================== mapa de cômodos ===================== */
+let mapaPadrao = null, mapa = null;
+function casa1(nomeNorm, palavra){
+  const p = norm(palavra);
+  if (!p) return false;
+  if (p.length <= 3) return nomeNorm.split(/[^a-z0-9]+/).includes(p);
+  return nomeNorm.replace(/_/g, ' ').includes(p.replace(/_/g, ' '));
+}
+function comodoDe(nome, tipo){
+  const fixos = mapa.fixos || {};
+  const f = fixos[nome + '|' + tipo] || fixos[nome];
+  if (f) return f;
+  const n = norm(nome);
+  for (const c of mapa.comodos || []) if ((c.palavras || []).some((p) => casa1(n, p))) return c.nome;
+  return mapa.semComodo || 'Outros';
+}
+function ordemComodos(){ return [...(mapa.comodos || []).map((c) => c.nome), mapa.semComodo || 'Outros']; }
+function corDe(comodo){
+  const c = (mapa.comodos || []).find((x) => x.nome === comodo);
+  if (c && c.cor) return c.cor;
+  if (comodo === (mapa.semComodo || 'Outros') && mapa.corSemComodo) return mapa.corSemComodo;
+  const i = ordemComodos().indexOf(comodo); return CORES[(i < 0 ? ordemComodos().length : i) % CORES.length];
+}
+function agrupar(itens, chave){
+  const g = new Map();
+  for (const it of itens){ const c = comodoDe(chave(it), it.tipo || 'CENA'); if (!g.has(c)) g.set(c, []); g.get(c).push(it); }
+  return [...new Set([...ordemComodos(), ...g.keys()])].filter((c) => g.has(c)).map((c) => ({ comodo: c, cor: corDe(c), itens: g.get(c) }));
+}
+
+/* ===================== Cenas (grade de parede) ===================== */
+async function tocarCena(el, nome){
+  if (el.dataset.busy === '1') return;
+  el.classList.remove('brilho', 'falha'); void el.offsetWidth; el.classList.add('brilho');
+  try{ navigator.vibrate && navigator.vibrate(15); }catch(e){}
+  el.dataset.busy = '1';
+  try{ await ativarCena(nome); el.dataset.busy = '0'; el.classList.remove('brilho'); void el.offsetWidth; el.classList.add('brilho'); toast('✓ ' + nome, 'ok'); }
+  catch(e){ el.dataset.busy = '0'; el.classList.remove('brilho'); void el.offsetWidth; el.classList.add('falha'); toast(nome + ': ' + e.message, 'err', 3000); }
+}
+function cartaoCena(nome, cor, extra){
+  // nomes "colados" e longos (OffautACSala) encolhem um pouco em vez de quebrar no meio
+  const longa = Math.max(...nome.split(/\s+/).map((p) => p.length));
+  return h('button', { type: 'button', class: 'cena', role: 'listitem', style: '--cor:' + cor + (longa > 11 ? ';font-size:calc(var(--fs) * ' + Math.max(0.75, 11 / longa).toFixed(2) + ')' : '') + (extra || ''), on: { click: (e) => tocarCena(e.currentTarget, nome) } }, h('span', null, nome));
+}
+// Escolhe colunas e altura das linhas para caber na tela sem rolar, quando possível.
+function medidas(grupos, W, H){
+  const deitado = W > H;
+  const faixa = W >= 1200 ? [10, 12] : W >= 1000 ? [9, 11] : W >= 860 ? (deitado ? [8, 10] : [6, 8]) : W >= 760 ? [6, 8] : W >= 600 ? [5, 6] : W >= 400 ? [3, 4] : [2, 3];
+  const gap = W < 760 ? 6 : 8, minH = W < 600 ? 72 : 78, maxH = W < 600 ? 110 : 150;
+  const linhas = (cols, faixas) => faixas ? grupos.reduce((s, g) => s + Math.ceil(g.itens.length / cols), 0) : Math.ceil(grupos.reduce((s, g) => s + g.itens.length, 0) / cols);
+  // 1º: com faixas por cômodo (cada cômodo começa numa linha nova); 2º: corrido, se não couber
+  for (const faixas of [true, false]){
+    for (let cols = faixa[0]; cols <= faixa[1]; cols++){
+      const n = linhas(cols, faixas);
+      const row = (H - gap * (n - 1)) / n;
+      if (row >= minH) return { cols, row: Math.min(row, maxH), faixas, gap };
+    }
+  }
+  return { cols: faixa[1], row: minH, faixas: false, gap };
+}
+function renderCenas(){
+  const grade = $('#grade'), leg = $('#legenda');
+  const cenas = (casa && casa.cenas) || [];
+  const grupos = agrupar(cenas, (n) => n);
+  leg.replaceChildren(...grupos.map((g) => h('span', null, h('i', { style: 'background:' + g.cor }), g.comodo)));
+  if (!cenas.length){ grade.replaceChildren(h('div', { class: 'vazio', style: 'grid-column:1/-1' }, casa ? 'Nenhuma cena na casa.' : 'Carregando a casa…')); return; }
+  const W = grade.clientWidth || window.innerWidth, H = grade.clientHeight || (window.innerHeight - 100);
+  const m = medidas(grupos, W, H);
+  grade.style.setProperty('--cols', m.cols);
+  grade.style.setProperty('--row', Math.floor(m.row) + 'px');
+  document.documentElement.style.setProperty('--gap', m.gap + 'px');
+  // texto proporcional ao cartão: legível a 1–2 m num tablet de parede
+  const larg = (W - m.gap * (m.cols - 1)) / m.cols;
+  grade.style.setProperty('--fs', Math.round(Math.max(13, Math.min(19, larg / 7.2, m.row / 4.6))) + 'px');
+  const cards = [];
+  for (const g of grupos) g.itens.forEach((nome, i) => cards.push(cartaoCena(nome, g.cor, m.faixas && i === 0 ? ';grid-column-start:1' : '')));
+  grade.replaceChildren(...cards);
+}
+
+/* ===================== Cômodos ===================== */
+let comodoAtivo = 'Todos';
+function renderComodos(){
+  const aps = (casa && casa.aparelhos) || [];
+  const busca = norm($('#busca').value);
+  const grupos = agrupar(aps, (a) => a.nome);
+  $('#chips').replaceChildren(...[{ comodo: 'Todos', itens: aps }, ...grupos].map((g) => h('button', { type: 'button', class: 'chip', 'data-on': g.comodo === comodoAtivo ? '1' : '0', on: { click: () => { comodoAtivo = g.comodo; renderComodos(); } } }, g.cor ? h('i', { style: 'background:' + g.cor }) : null, g.comodo, h('small', null, String(g.itens.length)))));
+  const lista = $('#listaComodos'); lista.replaceChildren();
+  for (const g of grupos){
+    if (comodoAtivo !== 'Todos' && g.comodo !== comodoAtivo) continue;
+    const itens = g.itens.filter((a) => !busca || norm(a.nome).includes(busca)).sort((a, b) => a.nome.localeCompare(b.nome, 'pt'));
+    if (!itens.length) continue;
+    lista.append(h('section', { class: 'room' }, h('h2', null, h('i', { style: 'background:' + g.cor }), g.comodo, h('span', null, itens.length + ' itens')), h('div', { class: 'devs' }, itens.map(linhaAparelho))));
+  }
+  if (!lista.children.length) lista.append(h('div', { class: 'vazio' }, aps.length ? 'Nada com esse filtro.' : 'Carregando a casa…'));
+}
+function linhaAparelho(a){
+  const st = h('small', null, TIPO[a.tipo] || a.tipo || '');
+  const linha = h('div', { class: 'dev' }, h('div', { class: 'nm' }, h('b', null, a.nome), st), h('div', { class: 'acts' }));
+  const vai = async (ligar) => {
+    const bs = linha.querySelectorAll('button'); bs.forEach((b) => b.disabled = true);
+    st.className = ''; st.textContent = 'enviando…';
+    try{ await ligarAparelho(a, ligar); st.className = 'ok'; st.textContent = (TIPO[a.tipo] || '') + ' · ' + (ligar ? 'ligado' : 'desligado'); }
+    catch(e){ st.className = 'err'; st.textContent = (TIPO[a.tipo] || '') + ' · erro'; toast(a.nome + ': ' + e.message, 'err', 3000); }
+    bs.forEach((b) => b.disabled = false);
+  };
+  linha.lastChild.append(h('button', { type: 'button', class: 'pri', on: { click: () => vai(true) } }, 'Ligar'), h('button', { type: 'button', on: { click: () => vai(false) } }, 'Desligar'));
+  return linha;
+}
+
+/* ===================== Controles (botão → cena) ===================== */
+let ctlAtivo = null;
+function renderControles(){
+  const ctl = mapa.controles || {};
+  const nomes = Object.keys(ctl);
+  if (!ctlAtivo || !ctl[ctlAtivo]) ctlAtivo = nomes[0] || null;
+  $('#ctlLista').replaceChildren(...nomes.map((n) => h('button', { type: 'button', 'aria-selected': n === ctlAtivo ? 'true' : 'false', on: { click: () => { ctlAtivo = n; renderControles(); } } }, n, h('small', null, comodoDe(n, '').toUpperCase() + ' · ' + Object.keys(ctl[n]).length + ' BOTÕES'))));
+  const r = $('#remoto');
+  if (!ctlAtivo){ r.replaceChildren(h('div', { class: 'vazio' }, 'Nenhum controle. Crie em Ajustes, na chave "controles".')); return; }
+  const cenas = new Set((casa && casa.cenas) || []);
+  const cor = corDe(comodoDe(ctlAtivo, ''));
+  r.replaceChildren(
+    h('h2', null, ctlAtivo),
+    h('p', null, 'Cada botão ativa uma cena da casa. Para mudar, edite "controles" em Ajustes.'),
+    h('div', { class: 'teclas' }, Object.entries(ctl[ctlAtivo]).map(([rotulo, cena]) => {
+      const b = h('button', { type: 'button', class: 'cena', style: '--cor:' + cor, disabled: casa && !cenas.has(cena), on: { click: (e) => tocarCena(e.currentTarget, cena) } }, h('span', null, rotulo), h('small', null, casa && !cenas.has(cena) ? 'cena não existe' : cena));
+      return b;
+    })));
+}
+
+function renderTudo(){ renderCenas(); renderComodos(); renderControles(); }
+
+/* ===================== navegação, ajustes, login ===================== */
+$$('.abas button').forEach((b) => b.addEventListener('click', () => {
+  $$('.abas button').forEach((x) => x.setAttribute('aria-selected', x === b ? 'true' : 'false'));
+  $$('.vista').forEach((v) => { v.dataset.on = v.id === 'v' + b.dataset.v[0].toUpperCase() + b.dataset.v.slice(1) ? '1' : '0'; });
+  store.set('iconic.aba', b.dataset.v);
+  if (b.dataset.v === 'cenas') renderCenas();
+}));
+$('#busca').addEventListener('input', renderComodos);
+$('#bAtualizar').addEventListener('click', () => carregarCasa(true));
+$('#bAjustes').addEventListener('click', () => {
+  $('#ajConta').textContent = LOCAL ? 'Conectado à central deste Mac. iConic ' + VERSAO : 'Conta: ' + ((sessao && sessao.nome) || '—') + ' · iConic ' + VERSAO;
+  $('#bSair').hidden = LOCAL;
+  $('#txtMapa').value = JSON.stringify(mapa, null, 2); $('#mMapa').textContent = ''; $('#dlg').showModal();
+});
+$('#bFechar').addEventListener('click', () => $('#dlg').close());
+$('#bSalvar').addEventListener('click', () => {
+  try{
+    const m = JSON.parse($('#txtMapa').value);
+    if (!Array.isArray(m.comodos)) throw new Error('falta a lista "comodos"');
+    mapa = m; store.set('iconic.mapa', m); $('#dlg').close(); renderTudo(); toast('Mapa salvo.', 'ok');
+  }catch(e){ $('#mMapa').textContent = 'JSON inválido: ' + e.message; }
+});
+$('#bPadrao').addEventListener('click', () => { mapa = mapaPadrao; store.del('iconic.mapa'); $('#txtMapa').value = JSON.stringify(mapa, null, 2); renderTudo(); });
+$('#bSair').addEventListener('click', () => { $('#dlg').close(); sair(); });
+
+function sair(){
+  if (sessao && sessao.token) api('sair', { token: sessao.token }).catch(() => {});
+  sessao = null; casa = null; store.del('iconic.sessao'); store.del('iconic.casa');
+  $('#app').hidden = true; $('#login').hidden = false; $('#senha').value = '';
+}
+$('#fLogin').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const tel = $('#tel').value.replace(/\D/g, ''), senha = $('#senha').value;
+  if (tel.length < 10){ $('#mLogin').textContent = 'Digite o número com DDD.'; return; }
+  if (!senha){ $('#mLogin').textContent = 'Digite a sua senha.'; return; }
+  $('#bEntrar').disabled = true; $('#mLogin').textContent = '';
+  try{
+    const j = await api('entrar', { telefone: tel, senha, aparelho: 'iconic · ' + (navigator.platform || 'web').slice(0, 20) });
+    if (j.ok){ sessao = { token: j.token, nome: j.nome || '' }; store.set('iconic.sessao', sessao); abrirApp(); }
+    else $('#mLogin').textContent = j.erro === 'sem_senha' ? 'Crie a sua senha primeiro no app Felyx (Primeiro acesso).' : (j.mensagem || 'Número ou senha incorretos.');
+  }catch(err){ $('#mLogin').textContent = 'Sem conexão. Tente de novo.'; }
+  $('#bEntrar').disabled = false;
+});
+
+function abrirApp(){
+  $('#login').hidden = true; $('#app').hidden = false;
+  const aba = store.get('iconic.aba', 'cenas');
+  const b = $('.abas button[data-v="' + aba + '"]'); if (b) b.click();
+  renderTudo(); carregarCasa(false);
+}
+
+/* relógio, tela sempre acesa (tablet de parede), redimensionar */
+function relogio(){ $('#hora').textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+setInterval(relogio, 15000); relogio();
+let trava = null;
+async function manterAceso(){ try{ if ('wakeLock' in navigator && document.visibilityState === 'visible') trava = await navigator.wakeLock.request('screen'); }catch(e){} }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible'){ manterAceso(); if (sessao || LOCAL) carregarCasa(false); } });
+let rT; window.addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(renderCenas, 120); });
+setInterval(() => { if ((sessao || LOCAL) && document.visibilityState === 'visible') carregarCasa(false); }, 10 * 60e3);
+
+if ('serviceWorker' in navigator && !/[?&]nosw/.test(location.search)) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+(async () => {
+  try{ mapaPadrao = await (await fetch('comodos.json')).json(); }catch(e){ mapaPadrao = { comodos: [], fixos: {}, controles: {}, semComodo: 'Outros' }; }
+  mapa = store.get('iconic.mapa', null) || mapaPadrao;
+  if (!mapa.controles) mapa.controles = mapaPadrao.controles;
+  LOCAL = await detectarLocal();
+  if (LOCAL || sessao){ abrirApp(); manterAceso(); }
+  else { $('#login').hidden = false; }
+})();
+</script>
+</body>
+</html>
